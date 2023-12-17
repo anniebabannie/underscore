@@ -1,21 +1,24 @@
+@import url('@radix-ui/colors/tomatoDark.css');
+@import url('@radix-ui/colors/mauveDark.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  p, li {
-    @apply text-lg;
+  p, ul, ol {
+    @apply text-lg mb-4;
   }
   h1, h2, h3 {
     @apply font-bold;
   }
 
   h1 {
-    @apply text-4xl;
+    @apply text-4xl mb-8;
   }
 
   h2 {
-    @apply text-3xl;
+    @apply text-3xl mb-6 mt-8;
   }
 
   h3 {
@@ -37,5 +40,8 @@
   code {
     @apply text-sm bg-gray-300 text-red-600 px-1.5 py-1 rounded;
   }
-  
+ 
+  .editor {
+    @apply outline-none;
+  }
 }
