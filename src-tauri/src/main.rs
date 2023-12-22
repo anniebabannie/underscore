@@ -3,9 +3,8 @@
 
 use std::{fs::{self, DirEntry}, io, path::{PathBuf, Path}, ffi::{OsString, OsStr}};
 use serde::{Serialize, Deserialize};
-use specta::Type;
-use tauri_specta::*;
-use ts_rs::TS;
+use specta::{Type, ts::export};
+use tauri_specta::{*, ts};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -23,14 +22,18 @@ fn save_markdown(text: &str) -> bool {
 
 #[tauri::command]
 #[specta::specta]
-fn get_directories(root: &str) -> Vec<String> {
-    let mut dir_content = Vec::new();
+fn get_directories(root: &str) -> Vec<Folder> {
+    let mut dir_content: Vec<Folder> = Vec::new();
     let paths = fs::read_dir(root).unwrap();
 
     for entry in paths {
         let dir = entry.unwrap().path();
         if dir.is_dir() {
-            dir_content.push(dir.file_name().unwrap().to_string_lossy().into_owned())
+            let folder = Folder {
+                name: dir.file_name().unwrap().to_string_lossy().into_owned(),
+                children: Vec::new()
+            };
+            dir_content.push(folder)
         }
         //  else if is_markdown_file(&dir) {
         //     println!("file: {:?}", &dir);
@@ -42,11 +45,10 @@ fn get_directories(root: &str) -> Vec<String> {
     dir_content
 }
 
-#[derive(TS)]
-#[ts(export, export_to = "../src/bindings/Folder.ts")]
+#[derive(Serialize, Type)]
 pub struct Folder {
-    name: String,
-    children: Vec<Folder>
+    pub name: String,
+    pub children: Vec<Folder>
 }
 
 fn is_markdown_file(path: &Path) -> bool {
@@ -69,7 +71,7 @@ fn is_markdown_file(path: &Path) -> bool {
 // pub struct EmptyEvent;
 
 fn main() {
-    let specta_builder = {
+    let specta_builder = {;
         let specta_builder = ts::builder()
             .commands(tauri_specta::collect_commands![
                 get_directories
@@ -78,7 +80,7 @@ fn main() {
             .config(specta::ts::ExportConfig::default().formatter(specta::ts::formatter::prettier));
 
         #[cfg(debug_assertions)]
-        let specta_builder = specta_builder.path("../src/bindings/tauri.ts");
+        let specta_builder = specta_builder.path("../src/tauri.types.ts");
 
         specta_builder.into_plugin()
     };
