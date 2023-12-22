@@ -5,6 +5,7 @@ use std::{fs::{self, DirEntry}, io, path::{PathBuf, Path}, ffi::{OsString, OsStr
 use serde::{Serialize, Deserialize};
 use specta::Type;
 use tauri_specta::*;
+use ts_rs::TS;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -28,9 +29,7 @@ fn get_directories(root: &str) -> Vec<String> {
 
     for entry in paths {
         let dir = entry.unwrap().path();
-        dbg!(&dir, dir.ends_with(".md"));
         if dir.is_dir() {
-            println!("dir: {:?}", &dir);
             dir_content.push(dir.file_name().unwrap().to_string_lossy().into_owned())
         }
         //  else if is_markdown_file(&dir) {
@@ -43,7 +42,8 @@ fn get_directories(root: &str) -> Vec<String> {
     dir_content
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, specta::Type)]
+#[derive(TS)]
+#[ts(export, export_to = "../src/bindings/Folder.ts")]
 pub struct Folder {
     name: String,
     children: Vec<Folder>
@@ -78,7 +78,7 @@ fn main() {
             .config(specta::ts::ExportConfig::default().formatter(specta::ts::formatter::prettier));
 
         #[cfg(debug_assertions)]
-        let specta_builder = specta_builder.path("../src/bindings.ts");
+        let specta_builder = specta_builder.path("../src/bindings/tauri.ts");
 
         specta_builder.into_plugin()
     };
