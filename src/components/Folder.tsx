@@ -1,68 +1,46 @@
-import { useRef } from "react";
-import _debounce from "lodash/debounce";
+import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
+import { Dispatch, SetStateAction, useRef } from "react";
 import ContentEditable from "react-contenteditable"
 
-export default function Folder({ folder, searching }:{
-  folder: Folder,
+export default function Folder({ folder, selected_folder_path, selectFolder, toggleOpen, searching }:{
+  folder: FolderType,
+  selectFolder: Dispatch<SetStateAction<string>>,
+  toggleOpen: (path:string) => void,
+  selected_folder_path?: string,
   searching?:boolean
 }) {
   const DEFAULT_EDIT_TEXT = 'Untitled folder'
   let default_text = (folder.name !== DEFAULT_EDIT_TEXT) ? folder.name : DEFAULT_EDIT_TEXT;
   const text = useRef(default_text)
+  const isOpen = useRef(folder.relative_path === selected_folder_path);
 
-  function getFolderText(folder: Folder) {
-    if (folder.in_edit_mode) {
-      return text.current
+  function handleToggle() {
+    if (isOpen.current) {
+      isOpen.current = false;
     } else {
-      return folder.name;
+      toggleOpen(folder.relative_path);
     }
   }
 
-  const handleChange = _debounce(e => {
-    text.current = e.target.value
-  }, 50);
-
-  function handleBlur(_e: any) {
-    // dispatch(folderActions.updateFolder({ folder_name: text.current, subaction: folder_just_created }))
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.code === 'Enter' && !searching) {
-      e.preventDefault();
-      // dispatch(folderActions.updateFolder({ folder_name: text.current, subaction: folder_just_created }))
-    }
+  function traverseFolderTree(folder:FolderType, path:string) {
   }
 
   return(
-    <li
-      // style={{ paddingLeft: PADDING*level }}
-      className={`
-        ${(!folder.is_collapsed ? ' open-folder ' : ' ')
-        }` }
+    <li className={`
+    flex items-center
+    ${isOpen ? "bg-gray-300": "bg-white"}
+    `}>
+      { isOpen &&
+        <ChevronDownIcon height="16px" onClick={handleToggle}/>
+      }
+      {!isOpen &&
+        <ChevronRightIcon height="16px" onClick={handleToggle}/>
+      }
+      <div 
+      onClick={() => selectFolder(folder.relative_path)}
       >
-        <div
-          data-folder-id={folder.id}
-          // onClick={selectFolder}
-          className={`relative
-            px-4 py-0.5 rounded-sm
-            my-0.5
-            transition-colors
-            duration-75
-            `}
-        >
-        {/* {getCaret()} */}
-        <ContentEditable
-          className={`
-            p-0.5 content-box ${(!folder.in_edit_mode) ? 'select-none' : `text-gray-800 bg-white rounded-sm`}
-            `}
-          id={'folder-' + folder.id}
-          html={getFolderText(folder)}
-          disabled={!folder.in_edit_mode}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-        />
-        </div>
-      </li>
+        {folder.name}
+      </div>
+    </li>
   )
 }

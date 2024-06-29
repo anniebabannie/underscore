@@ -2,6 +2,12 @@
 
 This template should help get you started developing with Tauri, React and Typescript in Vite.
 
-## Recommended IDE Setup
+## Running locally
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+```
+npm run tauri dev
+```
+
+## Generating Types
+
+Structs, Commands and Events defined in the Tauri core code can be exported to TS for use in the front end. We use the crate `tauri-specta` to accomplish this. You can find further documentation on the crate's Github page.

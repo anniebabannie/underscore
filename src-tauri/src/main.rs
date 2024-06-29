@@ -31,14 +31,19 @@ fn get_directories(root: &str) -> Vec<Folder> {
         if dir.is_dir() {
             let folder = Folder {
                 name: dir.file_name().unwrap().to_string_lossy().into_owned(),
-                children: Vec::new()
+                children: Vec::new(),
+                relative_path: dir.to_str().unwrap().to_string().strip_prefix(&root).unwrap().to_owned(),
+                files: dir.read_dir().unwrap().map(|entry| {
+                    let path: PathBuf = entry.unwrap().path();
+                    if is_markdown_file(&path) {
+                        path.file_name().unwrap().to_string_lossy().into_owned()
+                    } else {
+                        "".to_string()
+                    }
+                }).collect(),
             };
             dir_content.push(folder)
         }
-        //  else if is_markdown_file(&dir) {
-        //     println!("file: {:?}", &dir);
-        //     dir_content.push(dir.file_name().unwrap().to_string_lossy().into_owned())
-        // }
 
     };
 
@@ -48,7 +53,9 @@ fn get_directories(root: &str) -> Vec<Folder> {
 #[derive(Serialize, Type)]
 pub struct Folder {
     pub name: String,
-    pub children: Vec<Folder>
+    pub children: Vec<Folder>,
+    pub files: Vec<String>,
+    pub relative_path: String,
 }
 
 fn is_markdown_file(path: &Path) -> bool {
