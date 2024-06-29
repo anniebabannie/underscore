@@ -7,6 +7,7 @@ declare global {
     is_open?: boolean,
     is_selected?: boolean,
     in_edit_mode?: boolean
+    children?: FolderType[]
   }
 };
 

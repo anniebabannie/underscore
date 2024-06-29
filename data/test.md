@@ -1,5 +1,3 @@
-sdfdsfasdfasdf
+# This is Typist 2.0
 
-# Sadfasdf
-
-Asdfadfadf
+It looks like shit

@@ -31,7 +31,8 @@ fn get_directories(root: &str) -> Vec<Folder> {
         if dir.is_dir() {
             let folder = Folder {
                 name: dir.file_name().unwrap().to_string_lossy().into_owned(),
-                children: Vec::new(),
+                children: get_directories(&dir.to_str().unwrap()),
+                // children: Vec::new(),
                 relative_path: dir.to_str().unwrap().to_string().strip_prefix(&root).unwrap().to_owned(),
                 files: dir.read_dir().unwrap().map(|entry| {
                     let path: PathBuf = entry.unwrap().path();
